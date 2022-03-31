@@ -1,0 +1,11 @@
+name: pcl-env
+
+dependencies:
+  - numpy
+  - matplotlib
+  - pandas
+  - scikit-learn
+  - pip:
+    - faiss-cpu
+    - tqdm
+    - easydict
