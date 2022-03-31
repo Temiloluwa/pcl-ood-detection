@@ -1,0 +1,57 @@
+{   
+    "model_config":{
+        "contrastive": {
+            "encoder":["key", "query"],
+            "output_layer": ["avg_pool"]
+        },
+        "finetuned": {
+            "encoder":["key"],
+            "output_layer": ["fc"],
+            "model_no": [3, 4, 6, 7],
+            "label_percent": [0.1],
+            "ft_ckpt":[144, 119, 999, 499, 589, 699, 850, 796, 539]
+        },
+        "distilled": {
+            "encoder":["key", "query"],
+            "output_layer": ["avg_pool", "fc"],
+            "teacher_model_type":["finetuned"],
+            "model_s": ["resnet18"],
+            "distill":["crd"],
+            "gamma": [0.2],
+            "alpha": [0.2],
+            "beta": [0.6],
+            "trial_no": [0, 1, 2]
+        }
+    },
+
+    "metrics":{
+        "eval_gpu": 2,
+        "num_classes": 10,
+        "train_le": false,
+        "cache_le": false,
+        "metrics": ["mahalanobis", "cosine", "euclidean"],
+        "pca_coms": [0, 10],
+        "clusters": [30, 50], 
+        "cluster_method": "kmeans"
+    },
+    
+    "ensemble": {
+        "num_classes": 10,
+        "model_nos":[1, 2, 3],
+        "label_percent": 0.1,
+        "eval_gpu": 2,
+        "num_thresholds":100,
+        "temperature": 1.5,
+        "ckpt_roots":[{"num_cluster": ["2816"], "pcl_r": 2560, "exp_number": 0, "ckpt":199},
+            {"num_cluster":["768"], "pcl_r": 256, "exp_number": 9, "ckpt":199},
+            {"num_cluster":["2816", "5120"], "pcl_r": 2560, "exp_number": 3, "ckpt":199}
+        ]
+    },
+
+    "odin":{
+       "num_classes":10,
+       "magnitude":0.0014,
+       "temperature":100,
+       "eval_gpu":3
+    }
+}
