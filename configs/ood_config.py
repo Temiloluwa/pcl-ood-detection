@@ -24,8 +24,6 @@ CO = OODConfig()
 CO.model_config.contrastive = edict({ 
     "encoder":["key"],
     "output_layer": ["avg_pool"],
-    #"ckpt": [19, 39, 59, 79, 99, 119, 139, 159, 179, 199],
-    #"ckpt": list(range(19, 999+20, 20)), 
     "ckpt": [199]
 })
 
@@ -85,15 +83,4 @@ CO.ensemble = edict({
     "num_thresholds":100,
     "center_crop": False,
     "temperature": [100, 50, 10, 5, 3, 2, 1]
-})
-
-
-CO.odin = edict({
-    "num_classes":10,
-    "magnitude":0.0014,
-    "temperature": [100, 50, 10, 5, 3, 2, 1],
-    "eval_gpu":2,
-    "arch": "resnet50",
-    "use_train_groups": False,
-    "both_odins":True  
 })

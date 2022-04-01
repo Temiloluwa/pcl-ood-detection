@@ -4,8 +4,8 @@ import sys
 from contrastive import contrastive_main, CC
 from distilled import distill_kd_main, CD
 from finetuned import finetune_main, CF
-#from ood import CO
-#from ood_detection import metrics_ood_detector, ensemble_ood_detector, odin_ood_detector
+from ood import CO
+from ood_detection import metrics_ood_detector, ensemble_ood_detector
 from utils import gen_configs
 
 parser = argparse.ArgumentParser()
@@ -59,6 +59,9 @@ args.exp_root = os.path.join(args.exp_dir,
                             f"exp_{args.exp_number}")
 args.checkpoint_path = os.path.join(args.exp_root, f"checkpoint_{args.ckpt}_results")
 
+
+# imagenet30 has been commented out in the datasets
+# uncomment it to expose it
 
 if __name__ == '__main__':
     if args.operation == "train_model":
