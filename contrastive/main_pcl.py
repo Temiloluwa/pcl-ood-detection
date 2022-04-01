@@ -6,10 +6,8 @@ import random
 import shutil
 import time
 import warnings
-from tqdm import tqdm
 import numpy as np
 import faiss
-
 import torch
 import torch.nn as nn
 import torch.nn.parallel
@@ -20,7 +18,7 @@ import torch.multiprocessing as mp
 import torch.utils.data
 import torch.utils.data.distributed
 import torchvision.transforms as transforms
-import torchvision.datasets as datasets
+from tqdm import tqdm
 import torchvision.models as models
 from contrastive.pcl import loader
 from contrastive.pcl import builder
@@ -44,7 +42,9 @@ def save_args(args, path):
     with open(os.path.join(path , "args.txt"), "w") as f:
         f.write(msg)
 
-def contrastive_main(args):
+def contrastive_main(args, CC):
+    for k, v in CC.items():
+        setattr(args, k, v)
     
     if args.seed is not None:
         random.seed(args.seed)
@@ -100,7 +100,7 @@ def main_worker(gpu, ngpus_per_node, args):
         def print_pass(*args):
             pass
         builtins.print = print_pass
-        
+    
     if args.distributed:
         if args.dist_url == "env://" and args.rank == -1:
             args.rank = int(os.environ["RANK"])
@@ -114,7 +114,7 @@ def main_worker(gpu, ngpus_per_node, args):
     print("=> creating model '{}'".format(args.arch))
     model = builder.MoCo(
         models.__dict__[args.arch],
-        args.dim, args.pcl_r, args.moco_m, args.temperature, args.mlp, args.mlp2, args.pretrained)
+        args.dim, args.pcl_r, args.moco_m, args.temperature, args.mlp, args.pretrained)
     print(model)
 
     if args.distributed:
@@ -143,7 +143,8 @@ def main_worker(gpu, ngpus_per_node, args):
     else:
         # AllGather implementation (batch shuffle, queue update, etc.) in
         # this code only supports DistributedDataParallel.
-        raise NotImplementedError("Only DistributedDataParallel is supported.")
+        pass
+        #raise NotImplementedError("Only DistributedDataParallel is supported.")
 
     # define loss function (criterion) and optimizer
     criterion = nn.CrossEntropyLoss().cuda(args.gpu)
@@ -196,7 +197,6 @@ def main_worker(gpu, ngpus_per_node, args):
         if args.data == "Imagenet30":
             print("Training with ImageNet30 Transform")
             augmentation = [
-                #loader.Rot90(),
                 transforms.RandomResizedCrop((args.input_image_height, args.input_image_width), scale=(0.2, 1.)),
                 transforms.RandomApply([
                     transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)  # not strengthened
@@ -232,39 +232,13 @@ def main_worker(gpu, ngpus_per_node, args):
             normalize
         ]
         
-    # center-crop augmentation
-    if args.data == "Imagenet30":
-        #print("Evaluating with ImageNet30 Transform")
-        #eval_augmentation = transforms.Compose([
-        #    #loader.Rot90(),
-        #    transforms.Resize((args.input_image_height, args.input_image_width)),
-        #    transforms.CenterCrop(224),
-        #    transforms.ToTensor(),
-        #    normalize
-        #])
-
-        eval_augmentation = transforms.Compose([
+    eval_augmentation = transforms.Compose([
             transforms.Resize(256),
             transforms.CenterCrop(224),
             transforms.ToTensor(),
             normalize
             ])
-    else:
-    #    eval_augmentation = transforms.Compose([
-    #        transforms.Resize((args.input_image_height, args.input_image_width)),
-    #        transforms.CenterCrop(224),
-    #        transforms.ToTensor(),
-    #        normalize
-    #        ])
-
-        eval_augmentation = transforms.Compose([
-            transforms.Resize(256),
-            transforms.CenterCrop(224),
-            transforms.ToTensor(),
-            normalize
-            ])
-
-    
+        
     if args.data == "CIFAR10":
         train_dataset = loader.CIFAR10Instance(traindir,
             train=True,
@@ -293,16 +267,6 @@ def main_worker(gpu, ngpus_per_node, args):
             split="train",
             transform=eval_augmentation)
 
-    elif args.data == "STL10":
-        augmentation = [transforms.Resize(48)] + augmentation
-        train_dataset = loader.STL10Instance(datadir,
-            split="train",
-            transform=loader.TwoCropsTransform(transforms.Compose(augmentation)))
-
-        eval_dataset = loader.STL10Instance(datadir,
-            split="train",
-            transform=eval_augmentation)
-    
     elif args.data == "Imagenet30":
         train_dataset = loader.ImageNet30(root=datadir + "/ImageNet30/train",
             transform=loader.TwoCropsTransform2(transforms.Compose(augmentation)))
@@ -322,13 +286,11 @@ def main_worker(gpu, ngpus_per_node, args):
         train_dataset, batch_size=args.batch_size, shuffle=(train_sampler is None),
         num_workers=args.workers, pin_memory=True, sampler=train_sampler, drop_last=True)
         
-    
     # dataloader for center-cropped images, use larger batch size to increase speed
     eval_loader = torch.utils.data.DataLoader(
         eval_dataset, batch_size=args.batch_size*5, shuffle=False,
         sampler=eval_sampler, num_workers=args.workers, pin_memory=True)
 
-    
     for epoch in range(args.start_epoch, args.epochs):
         print(f"*** Epoch {epoch} ***")
         
@@ -337,7 +299,6 @@ def main_worker(gpu, ngpus_per_node, args):
             # compute momentum features for center-cropped images
             features = compute_features(eval_loader, model, args)
                     
-      
             # placeholder for clustering result
             cluster_result = {'im2cluster':[],'centroids':[],'density':[]}
             for num_cluster in args.num_cluster:
@@ -359,8 +320,6 @@ def main_worker(gpu, ngpus_per_node, args):
                 for data_tensor in data_list:                
                     dist.broadcast(data_tensor, 0, async_op=False)   
 
-            
-    
         if args.distributed:
             train_sampler.set_epoch(epoch)
         
@@ -471,6 +430,7 @@ def train(train_loader, model, criterion, optimizer, epoch, args, cluster_result
     data_dict["acc@Proto"] = acc_proto.avg
     return data_dict
             
+
 def compute_features(eval_loader, model, args):
     print('Computing features...')
     model.eval()

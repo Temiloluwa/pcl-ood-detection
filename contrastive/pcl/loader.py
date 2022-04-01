@@ -1,14 +1,10 @@
 import random
-import torch
 import os
 import pandas as pd
 import torchvision.datasets as datasets
 from PIL import ImageFilter, Image
 from torchvision.datasets.cifar import CIFAR10, CIFAR100
-from torchvision.datasets import SVHN, STL10
-from torchvision.transforms import transforms
-import numpy as np
-
+from torchvision.datasets import SVHN
 
 class TwoCropsTransform:
     """Take two random crops of one image as the query and key."""
@@ -82,15 +78,6 @@ class SVHNInstance(SVHN):
         return sample, index
 
 
-class STL10Instance(STL10):
-    def __getitem__(self, index):
-        sample = self.data[index]
-        sample = Image.fromarray(sample.transpose(1,2,0))
-        if self.transform is not None:
-            sample = self.transform(sample)           
-        return sample, index
-
-
 class LSUNCrop(datasets.ImageFolder):
 
     def __getitem__(self, index):
@@ -131,9 +118,3 @@ class ImageNet30(datasets.ImageFolder):
         if self.transform is not None:
             sample = self.transform(sample)           
         return sample, index
-
-class Rot90:
-    """"Rotate Image if height > width"""
-    def __call__(self, y):
-        return y.transpose(Image.ROTATE_90) if y.size[0] < y.size[1] else y
-    

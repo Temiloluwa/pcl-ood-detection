@@ -2,11 +2,11 @@ import argparse
 import os
 import sys
 from contrastive import contrastive_main, CC
-from distilled import distilled_main, distill_kd_main, distill_con_main, CD
-from finetuned import finetune_main, CF
-from ood import CO
-from ood_detection import metrics_ood_detector, ensemble_ood_detector, odin_ood_detector
-from utils import gen_configs, update_args
+#from distilled import distilled_main, distill_kd_main, distill_con_main, CD
+#from finetuned import finetune_main, CF
+#from ood import CO
+#from ood_detection import metrics_ood_detector, ensemble_ood_detector, odin_ood_detector
+from utils import gen_configs
 
 parser = argparse.ArgumentParser()
 
@@ -21,13 +21,13 @@ parser.add_argument('--operation', choices=['train_model', 'ood_detection'], \
 parser.add_argument('--ood_detector', choices=['metrics', 'ensemble', 'odin'], \
     default="metrics", help='type of ood detection method')
 
-parser.add_argument('--model_type', choices=['contrastive', 'finetuned', 'distilled', 'distilled_kd', 'distilled_con'],
+parser.add_argument('--model_type', choices=['contrastive', 'finetuned', 'distilled'],
                  help='type of model that can be trained')
 
 parser.add_argument('--epochs', default=30, type=int, metavar='N',
                     help='number of total epochs to run')
 
-parser.add_argument('-b', '--batch-size', default=256, type=int)
+parser.add_argument('-bs', '--batch-size', default=256, type=int)
 
 parser.add_argument('--lr', '--learning-rate', default=0.1, type=float)
 
@@ -61,11 +61,11 @@ args.checkpoint_path = os.path.join(args.exp_root, f"checkpoint_{args.ckpt}_resu
 
 
 if __name__ == '__main__':
-    args = update_args(args, CC)
     if args.operation == "train_model":
         if args.model_type == "contrastive":
-            contrastive_main(args)
+            contrastive_main(args, CC)
 
+        """
         elif args.model_type == "finetuned":
             args = update_args(args, CF)
             finetune_main(args)
@@ -81,6 +81,7 @@ if __name__ == '__main__':
         elif args.model_type == "distilled_con":
             args = update_args(args, CD)
             distill_con_main(args)
+        """
          
     elif args.operation == "ood_detection":
         model_config = getattr(CO.model_config, args.model_type)

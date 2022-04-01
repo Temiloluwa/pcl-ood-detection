@@ -1,2 +1,4 @@
 from .main_pcl import contrastive_main
-from .config import CC
+from utils import load_yaml
+
+CC = load_yaml("configs/contrastive-config.yml")

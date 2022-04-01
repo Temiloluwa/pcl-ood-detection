@@ -3,6 +3,8 @@ import os
 import numpy as np
 import pickle
 import pandas as pd
+import yaml
+from yaml import CLoader as Loader
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from tqdm import tqdm
 from collections import namedtuple
@@ -181,9 +183,9 @@ def gen_configs(model_config):
     return configs
 
 
-def update_args(args, config):
-    for k, v in vars(config).items():
-        if type(v) is dict:
-            v = edict(v)
-        setattr(args, k, v)
-    return args
+def load_yaml(config_path):
+    """load config file as python object"""
+    with open(config_path, "r") as f:
+        dict_ = yaml.load(f, Loader)
+        config = edict(dict_)
+        return config
