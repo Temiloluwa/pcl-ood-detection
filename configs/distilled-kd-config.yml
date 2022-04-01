@@ -1,0 +1,30 @@
+print_freq: 1
+num_workers: 8
+init_epochs: 30
+lr_decay_epochs: "150,180,210"
+lr_decay_rate: 0.1
+weight_decay: 5e-4
+momentum: 0.9
+model_s: "resnet18"
+gamma: 0
+alpha: 0
+beta: 1
+kd_T: 3
+feat_dim: 128
+nce_mode: "exact"
+nce_k: 4096
+nce_t: 0.07
+nce_m: 0.05
+is_sample: True
+augmentation: False
+percent: 1
+teacher:
+  model_type: "finetuned"
+  model_t: "resnet50"
+  output_layer: "avg_pool"
+  encoder: "key"
+  model_no: 2
+  label_percent: 0.1
+  num_classes: 100
+  gpu: 2
+  ft_ckpt: 1000

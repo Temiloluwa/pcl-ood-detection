@@ -6,7 +6,6 @@ import pandas as pd
 from datasets.get_data import get_ensemble_eval_loaders
 from utils import load_finetuned_model, detach, load_distilled_kd_model
 from sklearn import metrics
-from distilled.models import ResNet18
 from utils import save_pickle
 
 

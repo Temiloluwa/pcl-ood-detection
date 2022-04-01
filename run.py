@@ -2,7 +2,7 @@ import argparse
 import os
 import sys
 from contrastive import contrastive_main, CC
-#from distilled import distilled_main, distill_kd_main, distill_con_main, CD
+from distilled import distill_kd_main, CD
 from finetuned import finetune_main, CF
 #from ood import CO
 #from ood_detection import metrics_ood_detector, ensemble_ood_detector, odin_ood_detector
@@ -18,10 +18,10 @@ parser.add_argument('--oods', type=str, default="CIFAR100", \
 parser.add_argument('--operation', choices=['train_model', 'ood_detection'], \
     help='train a model (contrastive, finetuned or distilled model) or perform ood detection ')
 
-parser.add_argument('--ood_detector', choices=['metrics', 'ensemble', 'odin'], \
+parser.add_argument('--ood_detector', choices=['metrics', 'ensemble'], \
     default="metrics", help='type of ood detection method')
 
-parser.add_argument('--model_type', choices=['contrastive', 'finetuned', 'distilled'],
+parser.add_argument('--model_type', choices=['contrastive', 'finetuned', 'distilled_kd'],
                  help='type of model that can be trained')
 
 parser.add_argument('--epochs', default=30, type=int, metavar='N',
@@ -68,19 +68,8 @@ if __name__ == '__main__':
         elif args.model_type == "finetuned":
             finetune_main(args, CF)
 
-        """
-        elif args.model_type == "distilled":
-            args = update_args(args, CD)
-            distilled_main(args)
-        
         elif args.model_type == "distilled_kd":
-            args = update_args(args, CD)
-            distill_kd_main(args)
-        
-        elif args.model_type == "distilled_con":
-            args = update_args(args, CD)
-            distill_con_main(args)
-        """
+            distill_kd_main(args, CD)
          
     elif args.operation == "ood_detection":
         model_config = getattr(CO.model_config, args.model_type)
@@ -95,9 +84,6 @@ if __name__ == '__main__':
                 if args.ood_detector == "metrics":
                     metrics_ood_detector(args)
 
-                # odin on finetuned models
-                elif args.ood_detector == "odin":
-                    odin_ood_detector(args)
             except:
                 print(sys.exc_info())
                 continue
