@@ -5,9 +5,8 @@ import pandas as pd
 import json
 import faiss
 import numpy as np
-from ood import linear_evaluate, metrics_evaluate, get_auroc, get_ensemble_data, prep_for_auroc, odin_main \
-      ,cache_predictions
-from utils import normalize, prepare_finetune_paths, save_pickle, save_results_excel, load_finetuned_model
+from ood import linear_evaluate, metrics_evaluate, get_auroc, get_ensemble_data, prep_for_auroc, cache_predictions
+from utils import normalize, prepare_finetune_paths, save_pickle, load_finetuned_model
 from itertools import product
 from pprint import pprint
 from tqdm import tqdm
@@ -173,4 +172,3 @@ def ensemble_ood_detector(args):
     
     save_pickle(os.path.join(_root, _model_no), f"single_{_ckpt}", ood_results)
     save_pickle(os.path.join(_root, _model_no), "ens", ensemble_results)
-    
