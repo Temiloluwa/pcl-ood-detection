@@ -3,12 +3,12 @@ import os
 import pandas as pd
 import numpy as np
 from torch.utils import data
-from torch.utils.data import DataLoader, DistributedSampler
+from torch.utils.data import DataLoader
 from torchvision import datasets
 from collections import Counter
 from functools import partial
 
-from .constrastive_datasets import train_dataset_dict, test_dataset_dict, target_train_dataset, target_test_dataset, ImageNet30, StanfordDogs, CUB
+from .constrastive_datasets import train_dataset_dict, test_dataset_dict, target_train_dataset, target_test_dataset, ImageNet30
 from .finetune_datasets import CIFAR10TrainSet, CIFAR100TrainSet, Imagenet30TrainSet, finetune_augmentation, finetune_no_augmentation
 from .distill_datasets import get_distill_trainset, get_distill_testset, distill_train_transform_dict, distill_test_transform_dict 
 
@@ -19,8 +19,8 @@ def get_contrastive_loaders(args, dataset):
     else:
         batch_size = args.batch_size
 
-    train_dataset = train_dataset_dict(args.data, args.aug_num, args.rot_90)[dataset]
-    test_dataset = test_dataset_dict(args.data, args.aug_num, args.rot_90)[dataset]
+    train_dataset = train_dataset_dict(args.data)[dataset]
+    test_dataset = test_dataset_dict(args.data)[dataset]
 
     train_loader = DataLoader(
             train_dataset, batch_size=batch_size, shuffle=False,
@@ -70,9 +70,10 @@ def get_finetune_train_loaders(dataset, percent, batch_size, augmentation):
         test_set = datasets.CIFAR100(root="/data/datasets/CIFAR100", transform=finetune_no_augmentation("CIFAR100"), train=False)
     
     elif dataset == "Imagenet30":
-        train_set = Imagenet30TrainSet(root="/data/datasets/ImageNet30/train", \
-                        transform=train_transform("Imagenet30"), percent=percent)
-        test_set = ImageNet30(root="/data/datasets/ImageNet30/val", transform=finetune_no_augmentation("Imagenet30"))
+        pass
+        #train_set = Imagenet30TrainSet(root="/data/datasets/ImageNet30/train", \
+        #                transform=train_transform("Imagenet30"), percent=percent)
+        #test_set = ImageNet30(root="/data/datasets/ImageNet30/val", transform=finetune_no_augmentation("Imagenet30"))
          
 
     train_loader =  DataLoader(train_set,
@@ -125,24 +126,12 @@ def get_ensemble_eval_loaders(dataset, aug_dataset, batch_size, center_crop=True
         test_set = datasets.ImageFolder(root="/data/datasets/LSUN_datasets/LSUN_resize",\
                 transform=finetune_no_augmentation(aug_dataset))
     elif dataset == "Imagenet30":
-        train_set = ImageNet30(root=os.path.join("/data/datasets", 'ImageNet30', 'train'),\
-                transform=finetune_no_augmentation(aug_dataset))
-        test_set = ImageNet30(root=os.path.join("/data/datasets", 'ImageNet30', 'val'),\
-                transform=finetune_no_augmentation(aug_dataset))
-    elif dataset == "SD":
-        train_set =  StanfordDogs(root="/data/datasets/stanford_dogs",\
-                transform=finetune_no_augmentation(aug_dataset), reduced_data=False)
-        test_set =  StanfordDogs(root="/data/datasets/stanford_dogs",\
-                transform=finetune_no_augmentation(aug_dataset), reduced_data=False)
-    elif dataset == "CUB":
-        train_set = CUB(root="/data/datasets/cub200/CUB_200_2011/images",\
-                transform=finetune_no_augmentation(aug_dataset), reduced_data=False)
-        test_set = CUB(root="/data/datasets/cub200/CUB_200_2011/images",\
-                transform=finetune_no_augmentation(aug_dataset), reduced_data=False)
-
+        pass
+        #train_set = ImageNet30(root=os.path.join("/data/datasets", 'ImageNet30', 'train'),\
+        #        transform=finetune_no_augmentation(aug_dataset))
+        #test_set = ImageNet30(root=os.path.join("/data/datasets", 'ImageNet30', 'val'),\
+        #        transform=finetune_no_augmentation(aug_dataset))
         
-       
-
 
     train_loader =  DataLoader(train_set,
                             batch_size=batch_size * 2,

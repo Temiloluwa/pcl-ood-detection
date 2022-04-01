@@ -3,7 +3,7 @@ import os
 import sys
 from contrastive import contrastive_main, CC
 #from distilled import distilled_main, distill_kd_main, distill_con_main, CD
-#from finetuned import finetune_main, CF
+from finetuned import finetune_main, CF
 #from ood import CO
 #from ood_detection import metrics_ood_detector, ensemble_ood_detector, odin_ood_detector
 from utils import gen_configs
@@ -65,11 +65,10 @@ if __name__ == '__main__':
         if args.model_type == "contrastive":
             contrastive_main(args, CC)
 
-        """
         elif args.model_type == "finetuned":
-            args = update_args(args, CF)
-            finetune_main(args)
-        
+            finetune_main(args, CF)
+
+        """
         elif args.model_type == "distilled":
             args = update_args(args, CD)
             distilled_main(args)

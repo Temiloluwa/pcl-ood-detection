@@ -13,7 +13,8 @@ cifar_100_dir = os.path.join(datadir, "CIFAR100")
 svhn_dir = os.path.join(datadir, "svhn-data")
 lsun_crop_dir = os.path.join(datadir, 'LSUN_datasets', 'LSUN')
 lsun_resize_dir = os.path.join(datadir, 'LSUN_datasets', "LSUN_resize")
-imagenet30_dir = os.path.join(datadir, 'ImageNet30')
+#imagenet30_dir = os.path.join(datadir, 'ImageNet30')
+ImageNet30 = None
 
 # image means and stds
 means = {"CIFAR10":[0.491, 0.482, 0.447],
@@ -64,8 +65,8 @@ train_dataset_dict = lambda x: {
     "LSUNResize": LSUNResize(lsun_resize_dir,
                          transform=eval_augmentation(x)),
 
-    "Imagenet30": ImageNet30(root=os.path.join(imagenet30_dir, 'train'),
-                         transform=eval_augmentation(x))
+    #"Imagenet30": ImageNet30(root=os.path.join(imagenet30_dir, 'train'),
+    #                     transform=eval_augmentation(x))
 }
 
 
@@ -88,8 +89,8 @@ test_dataset_dict = lambda x: {
     "LSUNResize": LSUNResize(lsun_resize_dir,
                          transform=eval_augmentation(x)),
     
-    "Imagenet30": ImageNet30(root=os.path.join(imagenet30_dir, 'val'),
-                        transform=eval_augmentation(x))
+    #"Imagenet30": ImageNet30(root=os.path.join(imagenet30_dir, 'val'),
+    #                    transform=eval_augmentation(x))
 }
 
 target_train_dataset = {"CIFAR10":CIFAR10(root=CIFAR10DATA, train=True, download=True), 
@@ -97,7 +98,7 @@ target_train_dataset = {"CIFAR10":CIFAR10(root=CIFAR10DATA, train=True, download
                         "SVHN": SVHN(root=SVHNDATA, split="train", download=True),
                         "LSUNCrop": CIFAR10(root=CIFAR10DATA, train=False), 
                         "LSUNResize": CIFAR10(root=CIFAR10DATA, train=False),
-                        "Imagenet30": ImageNet30(root=os.path.join(datadir, 'ImageNet30', 'train'))
+                        #"Imagenet30": ImageNet30(root=os.path.join(datadir, 'ImageNet30', 'train'))
                         }
 
 target_test_dataset = {"CIFAR10":CIFAR10(root=CIFAR10DATA, train=False), 
@@ -105,5 +106,5 @@ target_test_dataset = {"CIFAR10":CIFAR10(root=CIFAR10DATA, train=False),
                         "SVHN": SVHN(root=SVHNDATA, split="test", download=True),
                         "LSUNCrop": CIFAR10(root=CIFAR10DATA, train=False), 
                         "LSUNResize": CIFAR10(root=CIFAR10DATA, train=False),
-                        "Imagenet30": ImageNet30(root=os.path.join(datadir, 'ImageNet30', 'val'))
+                        #"Imagenet30": ImageNet30(root=os.path.join(datadir, 'ImageNet30', 'val'))
                         }
